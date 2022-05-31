@@ -1,4 +1,5 @@
-# RPI.heating_control
+# Heating control based on ESP32
 
-Small Python test growing into a heating control system
+Project created in Sloeber (Eclipse Arduino)
+
 
