@@ -118,6 +118,7 @@ void TaskTest(void *pvParameters)
 void TaskHTTP(void *pvParameters)
 {
   (void) pvParameters;
+  uint32_t timeout;
 
   for (;;)
   {
@@ -128,8 +129,8 @@ void TaskHTTP(void *pvParameters)
       WiFiClient client = server.available();
       if(client){
         Serial.println("Client");
-
-        while (client.connected()) {
+        timeout = millis();
+        while (client.connected() && (millis() - timeout < 2000)) {
           if (client.available()) {
             char c = client.read();
             Serial.write(c);
