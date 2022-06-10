@@ -1,7 +1,10 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <esp_task_wdt.h>
-#include <string.h>
+#include <string>
+#include <iostream>
+
+using namespace std;
 
 #ifndef STASSID
 #define STASSID "NCC"
@@ -118,7 +121,7 @@ void TaskHTTP(void *pvParameters)
 {
   (void) pvParameters;
   uint32_t timeout;
-  String header;
+  std::string header, page;
 
   for (;;)
   {
@@ -137,9 +140,15 @@ void TaskHTTP(void *pvParameters)
             header += c;
             if (c == '\n') {
               if (currentLine.length() == 0) {
-            	if (header.indexOf("?") >= 0) {
-            		//parse params
-            		Serial.println("HTTP params");
+                Serial.println("HTTP params");
+			    header = header.substr(header.find(' ')+2);
+			    std::cout << "Req: " << header << '\n';
+			    std::string::size_type pos;
+			    pos = header.find('.');
+			    page = header.substr(0,pos);
+			    std::cout << page << '\n';
+            	if (page.find("temp") != string::npos) {
+            		Serial.println("TEMP action");
             	}
                 handleRoot(client);
                 client.println();
