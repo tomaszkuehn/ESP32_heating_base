@@ -6,6 +6,8 @@
 
 using namespace std;
 
+//#define DEBUG
+
 #ifndef STASSID
 #define STASSID "NCC"
 #define STAPSK  "password"
@@ -113,7 +115,9 @@ void TaskTest(void *pvParameters)
   for (;;)
   {
     vTaskDelay(1000);
+#ifdef DEBUG
     Serial.println("Test");
+#endif
   }
 }
 
@@ -126,7 +130,9 @@ void TaskHTTP(void *pvParameters)
   for (;;)
   {
     unsigned int temp = uxTaskGetStackHighWaterMark(nullptr);
+#ifdef DEBUG
     Serial.printf("HTTP %d\n", temp);
+#endif
     if(wificonnected > 10){
       String currentLine;
       WiFiClient client = server.available();
@@ -178,7 +184,9 @@ void TaskNetwork(void *pvParameters)
   for (;;)
   {
     vTaskDelay(1000 / portTICK_PERIOD_MS);
+#ifdef DEBUG
     Serial.printf("WiFi %d\n", wificonnected);
+#endif
     if (WiFi.status() != WL_CONNECTED) {
       wificonnected = 0;
       WiFi.mode(WIFI_AP_STA);
