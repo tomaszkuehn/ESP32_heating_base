@@ -175,6 +175,7 @@ void TaskHTTP(void *pvParameters)
             if (c == '\n') {
               if (currentLine.length() == 0) {
                 Serial.println("HTTP params");
+                unsigned long tt = millis(); // for execution time measurement
                 header = header.substr(header.find(' ')+2);
                 header = header.substr(0, header.find(' '));
                 std::cout << "Req: " << header << '\n';
@@ -232,6 +233,8 @@ void TaskHTTP(void *pvParameters)
                   }
                 }
                 client.println();
+                tt = millis() - tt;
+                std::cout << "Parser time " << tt << '\n';
                 break; // Out of while
               } else {
                 currentLine = "";
