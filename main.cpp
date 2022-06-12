@@ -198,6 +198,16 @@ void TaskHTTP(void *pvParameters)
                   std::cout << "Params: >" << params << "<" << '\n';
                   if (page == "temp") {
                     Serial.println("TEMP action");
+                    pos = params.find("=");
+                    header = params.substr(0, pos);
+                    params = params.substr(pos+1);
+                    pos = params.find("&");
+                    page = params.substr(0, pos);
+                    //check string to verify parameters presence
+                    std::cout << "Param1: " << header << ":" << page << '\n';
+                    if( header == "temp") {
+                      std::cout << "Temp: " << page << '\n';
+                    }
                     handleTemp(client);
                   }
                   else
