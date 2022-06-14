@@ -20,13 +20,17 @@ WiFiServer server(80);
 
 uint32_t wificonnected = 0;
 
-
+static SemaphoreHandle_t mutex;
 
 
 // define tasks
 void TaskTest( void *pvParameters );
+void TaskTest2( void *pvParameters );
 void TaskHTTP( void *pvParameters );
 void TaskNetwork( void *pvParameters );
+
+//shared resources
+uint _shTemp = 0;
 
 void handleRoot(WiFiClient client) {
   char temp[400];
@@ -95,12 +99,22 @@ void setup() {
 
   server.begin();
 
+  mutex = xSemaphoreCreateMutex();
+
 
 
   // Set up tasks
   xTaskCreate(
     TaskTest
     ,  "TaskTest"
+    ,  1024
+    ,  NULL
+    ,  2
+    ,  NULL );
+
+  xTaskCreate(
+    TaskTest2
+    ,  "TaskTest2"
     ,  1024
     ,  NULL
     ,  2
@@ -138,13 +152,38 @@ void loop()
 void TaskTest(void *pvParameters)
 {
   (void) pvParameters;
+  uint temp = 0;
+  uint tempNew = 0;
 
   for (;;)
   {
-    vTaskDelay(1000);
+    vTaskDelay(500/portTICK_PERIOD_MS);
+    if(xSemaphoreTake(mutex, 100/portTICK_PERIOD_MS) == pdPASS) {
+      tempNew = _shTemp; // read shared variable
+      xSemaphoreGive(mutex);
+    }
+    if (tempNew != temp) {
+      temp = tempNew;
+      Serial.printf("TestTemp %d\n", temp);
+    }
 #ifdef DEBUG
     Serial.println("Test");
 #endif
+  }
+}
+
+void TaskTest2(void *pvParameters)
+{
+  (void) pvParameters;
+  uint temp = 0;
+
+  for (;;)
+  {
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    if(xSemaphoreTake(mutex, 100/portTICK_PERIOD_MS) == pdPASS) {
+      _shTemp = temp++; //update shared variable
+      xSemaphoreGive(mutex);
+    }
   }
 }
 
@@ -157,8 +196,8 @@ void TaskHTTP(void *pvParameters)
 
   for (;;)
   {
-    unsigned int temp = uxTaskGetStackHighWaterMark(nullptr);
 #ifdef DEBUG
+    unsigned int temp = uxTaskGetStackHighWaterMark(nullptr);
     Serial.printf("HTTP %d\n", temp);
 #endif
     if(wificonnected > 10){
