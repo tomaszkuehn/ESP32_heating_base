@@ -107,7 +107,7 @@ void setup() {
   xTaskCreate(
     TaskTest
     ,  "TaskTest"
-    ,  1024
+    ,  2048
     ,  NULL
     ,  2
     ,  NULL );
@@ -115,7 +115,7 @@ void setup() {
   xTaskCreate(
     TaskTest2
     ,  "TaskTest2"
-    ,  1024
+    ,  2048
     ,  NULL
     ,  2
     ,  NULL );
